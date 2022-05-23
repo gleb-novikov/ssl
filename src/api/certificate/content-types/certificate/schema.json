@@ -1,0 +1,67 @@
+{
+  "kind": "collectionType",
+  "collectionName": "certificates",
+  "info": {
+    "singularName": "certificate",
+    "pluralName": "certificates",
+    "displayName": "certificate",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "Simple DV",
+        "WildCard",
+        "MultiDomain"
+      ],
+      "required": true
+    },
+    "domain": {
+      "type": "string",
+      "required": true
+    },
+    "price": {
+      "type": "integer"
+    },
+    "startDate": {
+      "type": "date"
+    },
+    "stopDate": {
+      "type": "date"
+    },
+    "time": {
+      "type": "integer",
+      "required": true
+    },
+    "autoProlangate": {
+      "type": "boolean",
+      "default": false
+    },
+    "isDraft": {
+      "type": "boolean",
+      "default": true
+    },
+    "isIssued": {
+      "type": "boolean",
+      "default": false
+    },
+    "isExpired": {
+      "type": "boolean"
+    },
+    "isCanceled": {
+      "type": "boolean",
+      "default": false
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "certificates"
+    }
+  }
+}
