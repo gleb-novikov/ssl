@@ -20,19 +20,8 @@
                           "attributes": {
                             "type": "object",
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "enum": [
-                                  "Simple DV",
-                                  "WildCard",
-                                  "MultiDomain"
-                                ]
-                              },
                               "domain": {
                                 "type": "string"
-                              },
-                              "price": {
-                                "type": "integer"
                               },
                               "startDate": {
                                 "type": "string",
@@ -42,22 +31,7 @@
                                 "type": "string",
                                 "format": "date"
                               },
-                              "time": {
-                                "type": "integer"
-                              },
                               "autoProlangate": {
-                                "type": "boolean"
-                              },
-                              "isDraft": {
-                                "type": "boolean"
-                              },
-                              "isIssued": {
-                                "type": "boolean"
-                              },
-                              "isExpired": {
-                                "type": "boolean"
-                              },
-                              "isCanceled": {
                                 "type": "boolean"
                               },
                               "user": {
@@ -552,19 +526,8 @@
                                                     "attributes": {
                                                       "type": "object",
                                                       "properties": {
-                                                        "type": {
-                                                          "type": "string",
-                                                          "enum": [
-                                                            "Simple DV",
-                                                            "WildCard",
-                                                            "MultiDomain"
-                                                          ]
-                                                        },
                                                         "domain": {
                                                           "type": "string"
-                                                        },
-                                                        "price": {
-                                                          "type": "integer"
                                                         },
                                                         "startDate": {
                                                           "type": "string",
@@ -574,22 +537,7 @@
                                                           "type": "string",
                                                           "format": "date"
                                                         },
-                                                        "time": {
-                                                          "type": "integer"
-                                                        },
                                                         "autoProlangate": {
-                                                          "type": "boolean"
-                                                        },
-                                                        "isDraft": {
-                                                          "type": "boolean"
-                                                        },
-                                                        "isIssued": {
-                                                          "type": "boolean"
-                                                        },
-                                                        "isExpired": {
-                                                          "type": "boolean"
-                                                        },
-                                                        "isCanceled": {
                                                           "type": "boolean"
                                                         },
                                                         "user": {
@@ -608,6 +556,102 @@
                                                               }
                                                             }
                                                           }
+                                                        },
+                                                        "certificate_type": {
+                                                          "type": "object",
+                                                          "properties": {
+                                                            "data": {
+                                                              "type": "object",
+                                                              "properties": {
+                                                                "id": {
+                                                                  "type": "string"
+                                                                },
+                                                                "attributes": {
+                                                                  "type": "object",
+                                                                  "properties": {
+                                                                    "price": {
+                                                                      "type": "integer"
+                                                                    },
+                                                                    "certificates": {
+                                                                      "type": "object",
+                                                                      "properties": {
+                                                                        "data": {
+                                                                          "type": "array",
+                                                                          "items": {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                              "id": {
+                                                                                "type": "string"
+                                                                              },
+                                                                              "attributes": {
+                                                                                "type": "object",
+                                                                                "properties": {}
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "type": {
+                                                                      "type": "string"
+                                                                    },
+                                                                    "createdAt": {
+                                                                      "type": "string",
+                                                                      "format": "date-time"
+                                                                    },
+                                                                    "updatedAt": {
+                                                                      "type": "string",
+                                                                      "format": "date-time"
+                                                                    },
+                                                                    "createdBy": {
+                                                                      "type": "object",
+                                                                      "properties": {
+                                                                        "data": {
+                                                                          "type": "object",
+                                                                          "properties": {
+                                                                            "id": {
+                                                                              "type": "string"
+                                                                            },
+                                                                            "attributes": {
+                                                                              "type": "object",
+                                                                              "properties": {}
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "updatedBy": {
+                                                                      "type": "object",
+                                                                      "properties": {
+                                                                        "data": {
+                                                                          "type": "object",
+                                                                          "properties": {
+                                                                            "id": {
+                                                                              "type": "string"
+                                                                            },
+                                                                            "attributes": {
+                                                                              "type": "object",
+                                                                              "properties": {}
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "status": {
+                                                          "type": "string",
+                                                          "enum": [
+                                                            "Draft",
+                                                            "Issued",
+                                                            "Verified",
+                                                            "Expired",
+                                                            "Canceled"
+                                                          ]
                                                         },
                                                         "createdAt": {
                                                           "type": "string",
@@ -705,6 +749,33 @@
                                     }
                                   }
                                 }
+                              },
+                              "certificate_type": {
+                                "type": "object",
+                                "properties": {
+                                  "data": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "attributes": {
+                                        "type": "object",
+                                        "properties": {}
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "Draft",
+                                  "Issued",
+                                  "Verified",
+                                  "Expired",
+                                  "Canceled"
+                                ]
                               },
                               "createdAt": {
                                 "type": "string",
@@ -1033,19 +1104,8 @@
                         "attributes": {
                           "type": "object",
                           "properties": {
-                            "type": {
-                              "type": "string",
-                              "enum": [
-                                "Simple DV",
-                                "WildCard",
-                                "MultiDomain"
-                              ]
-                            },
                             "domain": {
                               "type": "string"
-                            },
-                            "price": {
-                              "type": "integer"
                             },
                             "startDate": {
                               "type": "string",
@@ -1055,22 +1115,7 @@
                               "type": "string",
                               "format": "date"
                             },
-                            "time": {
-                              "type": "integer"
-                            },
                             "autoProlangate": {
-                              "type": "boolean"
-                            },
-                            "isDraft": {
-                              "type": "boolean"
-                            },
-                            "isIssued": {
-                              "type": "boolean"
-                            },
-                            "isExpired": {
-                              "type": "boolean"
-                            },
-                            "isCanceled": {
                               "type": "boolean"
                             },
                             "user": {
@@ -1565,19 +1610,8 @@
                                                   "attributes": {
                                                     "type": "object",
                                                     "properties": {
-                                                      "type": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                          "Simple DV",
-                                                          "WildCard",
-                                                          "MultiDomain"
-                                                        ]
-                                                      },
                                                       "domain": {
                                                         "type": "string"
-                                                      },
-                                                      "price": {
-                                                        "type": "integer"
                                                       },
                                                       "startDate": {
                                                         "type": "string",
@@ -1587,22 +1621,7 @@
                                                         "type": "string",
                                                         "format": "date"
                                                       },
-                                                      "time": {
-                                                        "type": "integer"
-                                                      },
                                                       "autoProlangate": {
-                                                        "type": "boolean"
-                                                      },
-                                                      "isDraft": {
-                                                        "type": "boolean"
-                                                      },
-                                                      "isIssued": {
-                                                        "type": "boolean"
-                                                      },
-                                                      "isExpired": {
-                                                        "type": "boolean"
-                                                      },
-                                                      "isCanceled": {
                                                         "type": "boolean"
                                                       },
                                                       "user": {
@@ -1621,6 +1640,102 @@
                                                             }
                                                           }
                                                         }
+                                                      },
+                                                      "certificate_type": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "data": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                              "id": {
+                                                                "type": "string"
+                                                              },
+                                                              "attributes": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                  "price": {
+                                                                    "type": "integer"
+                                                                  },
+                                                                  "certificates": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                      "data": {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                          "type": "object",
+                                                                          "properties": {
+                                                                            "id": {
+                                                                              "type": "string"
+                                                                            },
+                                                                            "attributes": {
+                                                                              "type": "object",
+                                                                              "properties": {}
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "type": {
+                                                                    "type": "string"
+                                                                  },
+                                                                  "createdAt": {
+                                                                    "type": "string",
+                                                                    "format": "date-time"
+                                                                  },
+                                                                  "updatedAt": {
+                                                                    "type": "string",
+                                                                    "format": "date-time"
+                                                                  },
+                                                                  "createdBy": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                      "data": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                          "id": {
+                                                                            "type": "string"
+                                                                          },
+                                                                          "attributes": {
+                                                                            "type": "object",
+                                                                            "properties": {}
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "updatedBy": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                      "data": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                          "id": {
+                                                                            "type": "string"
+                                                                          },
+                                                                          "attributes": {
+                                                                            "type": "object",
+                                                                            "properties": {}
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "status": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                          "Draft",
+                                                          "Issued",
+                                                          "Verified",
+                                                          "Expired",
+                                                          "Canceled"
+                                                        ]
                                                       },
                                                       "createdAt": {
                                                         "type": "string",
@@ -1718,6 +1833,33 @@
                                   }
                                 }
                               }
+                            },
+                            "certificate_type": {
+                              "type": "object",
+                              "properties": {
+                                "data": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "attributes": {
+                                      "type": "object",
+                                      "properties": {}
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "Draft",
+                                "Issued",
+                                "Verified",
+                                "Expired",
+                                "Canceled"
+                              ]
                             },
                             "createdAt": {
                               "type": "string",
@@ -1953,19 +2095,8 @@
                         "attributes": {
                           "type": "object",
                           "properties": {
-                            "type": {
-                              "type": "string",
-                              "enum": [
-                                "Simple DV",
-                                "WildCard",
-                                "MultiDomain"
-                              ]
-                            },
                             "domain": {
                               "type": "string"
-                            },
-                            "price": {
-                              "type": "integer"
                             },
                             "startDate": {
                               "type": "string",
@@ -1975,22 +2106,7 @@
                               "type": "string",
                               "format": "date"
                             },
-                            "time": {
-                              "type": "integer"
-                            },
                             "autoProlangate": {
-                              "type": "boolean"
-                            },
-                            "isDraft": {
-                              "type": "boolean"
-                            },
-                            "isIssued": {
-                              "type": "boolean"
-                            },
-                            "isExpired": {
-                              "type": "boolean"
-                            },
-                            "isCanceled": {
                               "type": "boolean"
                             },
                             "user": {
@@ -2485,19 +2601,8 @@
                                                   "attributes": {
                                                     "type": "object",
                                                     "properties": {
-                                                      "type": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                          "Simple DV",
-                                                          "WildCard",
-                                                          "MultiDomain"
-                                                        ]
-                                                      },
                                                       "domain": {
                                                         "type": "string"
-                                                      },
-                                                      "price": {
-                                                        "type": "integer"
                                                       },
                                                       "startDate": {
                                                         "type": "string",
@@ -2507,22 +2612,7 @@
                                                         "type": "string",
                                                         "format": "date"
                                                       },
-                                                      "time": {
-                                                        "type": "integer"
-                                                      },
                                                       "autoProlangate": {
-                                                        "type": "boolean"
-                                                      },
-                                                      "isDraft": {
-                                                        "type": "boolean"
-                                                      },
-                                                      "isIssued": {
-                                                        "type": "boolean"
-                                                      },
-                                                      "isExpired": {
-                                                        "type": "boolean"
-                                                      },
-                                                      "isCanceled": {
                                                         "type": "boolean"
                                                       },
                                                       "user": {
@@ -2541,6 +2631,102 @@
                                                             }
                                                           }
                                                         }
+                                                      },
+                                                      "certificate_type": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "data": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                              "id": {
+                                                                "type": "string"
+                                                              },
+                                                              "attributes": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                  "price": {
+                                                                    "type": "integer"
+                                                                  },
+                                                                  "certificates": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                      "data": {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                          "type": "object",
+                                                                          "properties": {
+                                                                            "id": {
+                                                                              "type": "string"
+                                                                            },
+                                                                            "attributes": {
+                                                                              "type": "object",
+                                                                              "properties": {}
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "type": {
+                                                                    "type": "string"
+                                                                  },
+                                                                  "createdAt": {
+                                                                    "type": "string",
+                                                                    "format": "date-time"
+                                                                  },
+                                                                  "updatedAt": {
+                                                                    "type": "string",
+                                                                    "format": "date-time"
+                                                                  },
+                                                                  "createdBy": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                      "data": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                          "id": {
+                                                                            "type": "string"
+                                                                          },
+                                                                          "attributes": {
+                                                                            "type": "object",
+                                                                            "properties": {}
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "updatedBy": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                      "data": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                          "id": {
+                                                                            "type": "string"
+                                                                          },
+                                                                          "attributes": {
+                                                                            "type": "object",
+                                                                            "properties": {}
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "status": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                          "Draft",
+                                                          "Issued",
+                                                          "Verified",
+                                                          "Expired",
+                                                          "Canceled"
+                                                        ]
                                                       },
                                                       "createdAt": {
                                                         "type": "string",
@@ -2638,6 +2824,33 @@
                                   }
                                 }
                               }
+                            },
+                            "certificate_type": {
+                              "type": "object",
+                              "properties": {
+                                "data": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "attributes": {
+                                      "type": "object",
+                                      "properties": {}
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "Draft",
+                                "Issued",
+                                "Verified",
+                                "Expired",
+                                "Canceled"
+                              ]
                             },
                             "createdAt": {
                               "type": "string",
@@ -2864,19 +3077,8 @@
                   "data": {
                     "type": "object",
                     "properties": {
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "Simple DV",
-                          "WildCard",
-                          "MultiDomain"
-                        ]
-                      },
                       "domain": {
                         "type": "string"
-                      },
-                      "price": {
-                        "type": "integer"
                       },
                       "startDate": {
                         "type": "string",
@@ -2886,22 +3088,7 @@
                         "type": "string",
                         "format": "date"
                       },
-                      "time": {
-                        "type": "integer"
-                      },
                       "autoProlangate": {
-                        "type": "boolean"
-                      },
-                      "isDraft": {
-                        "type": "boolean"
-                      },
-                      "isIssued": {
-                        "type": "boolean"
-                      },
-                      "isExpired": {
-                        "type": "boolean"
-                      },
-                      "isCanceled": {
                         "type": "boolean"
                       },
                       "user": {
@@ -2914,6 +3101,27 @@
                           }
                         ],
                         "example": "string or id"
+                      },
+                      "certificate_type": {
+                        "oneOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "string"
+                          }
+                        ],
+                        "example": "string or id"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "Draft",
+                          "Issued",
+                          "Verified",
+                          "Expired",
+                          "Canceled"
+                        ]
                       },
                       "createdAt": {
                         "type": "string",

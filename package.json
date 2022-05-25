@@ -20,8 +20,7 @@
     "acme-http-01-standalone": "^3.0.5",
     "better-sqlite3": "7.4.6",
     "greenlock-store-fs": "^3.2.2",
-    "strapi-plugin-email-designer": "^2.1.0",
-    "strapi-stripe": "^1.4.0"
+    "strapi-plugin-email-designer": "^2.1.0"
   },
   "author": {
     "name": "A Strapi developer"

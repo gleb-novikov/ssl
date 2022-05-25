@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "certificate_types",
+  "info": {
+    "singularName": "certificate-type",
+    "pluralName": "certificate-types",
+    "displayName": "Certificate Type",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "price": {
+      "type": "integer",
+      "default": 0,
+      "required": true,
+      "min": 0
+    },
+    "certificates": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::certificate.certificate",
+      "mappedBy": "certificate_type"
+    },
+    "type": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    }
+  }
+}

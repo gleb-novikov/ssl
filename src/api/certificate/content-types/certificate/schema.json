@@ -4,7 +4,7 @@
   "info": {
     "singularName": "certificate",
     "pluralName": "certificates",
-    "displayName": "certificate",
+    "displayName": "Certificate",
     "description": ""
   },
   "options": {
@@ -12,48 +12,18 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "type": {
-      "type": "enumeration",
-      "enum": [
-        "Simple DV",
-        "WildCard",
-        "MultiDomain"
-      ],
-      "required": true
-    },
     "domain": {
       "type": "string",
       "required": true
     },
-    "price": {
-      "type": "integer"
-    },
     "startDate": {
-      "type": "date"
+      "type": "date",
+      "required": true
     },
     "stopDate": {
       "type": "date"
     },
-    "time": {
-      "type": "integer",
-      "required": true
-    },
     "autoProlangate": {
-      "type": "boolean",
-      "default": false
-    },
-    "isDraft": {
-      "type": "boolean",
-      "default": true
-    },
-    "isIssued": {
-      "type": "boolean",
-      "default": false
-    },
-    "isExpired": {
-      "type": "boolean"
-    },
-    "isCanceled": {
       "type": "boolean",
       "default": false
     },
@@ -62,6 +32,23 @@
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "certificates"
+    },
+    "certificate_type": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::certificate-type.certificate-type",
+      "inversedBy": "certificates"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "Draft",
+        "Issued",
+        "Verified",
+        "Expired",
+        "Canceled"
+      ],
+      "default": "Draft"
     }
   }
 }
