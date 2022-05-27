@@ -28,19 +28,19 @@ module.exports = {
 	async afterCreate(event) {
 		const { result } = event;
 
-		try {
-			var altnames = [result.domain, 'www.' + result.domain];
-			greenlock
-				.add({
-					subject: altnames[0],
-					altnames: altnames
-				})
-				.then(function() {
-					// saved config to db (or file system)
-				});			
-		} catch (error) {
-			console.log(error);
-		}
+		// try {
+		// 	var altnames = [result.domain, 'www.' + result.domain];
+		// 	greenlock
+		// 		.add({
+		// 			subject: altnames[0],
+		// 			altnames: altnames
+		// 		})
+		// 		.then(function() {
+		// 			// saved config to db (or file system)
+		// 		});			
+		// } catch (error) {
+		// 	console.log(error);
+		// }
 
 
 		// try {

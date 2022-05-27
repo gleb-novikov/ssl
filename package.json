@@ -18,6 +18,7 @@
     "@strapi/provider-email-nodemailer": "^4.1.7",
     "@strapi/strapi": "4.1.7",
     "acme-http-01-standalone": "^3.0.5",
+    "axios": "^0.27.2",
     "better-sqlite3": "7.4.6",
     "greenlock-store-fs": "^3.2.2",
     "strapi-plugin-email-designer": "^2.1.0"

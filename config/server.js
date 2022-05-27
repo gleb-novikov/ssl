@@ -4,4 +4,7 @@ module.exports = ({ env }) => ({
   app: {
     keys: env.array('APP_KEYS'),
   },
+  sberUsername: env('SBER_USERNAME'),
+  sberPassword: env('SBER_PASSWORD'),
+  sberReturnUrl: env('SBER_RETURN_URL')
 });
