@@ -443,8 +443,8 @@ async function getAcmeAuthOrderData(order, type) {
             }
         }
     }
-    // console.log(authorizations);
-    // console.log(challenge);
+    console.log(authorizations);
+    console.log(challenge);
     const keyAuthorization = await client.getChallengeKeyAuthorization(challenge);
     return {authorization: authorizations[index], challenge: challenge, keyAuthorization: keyAuthorization}
 }

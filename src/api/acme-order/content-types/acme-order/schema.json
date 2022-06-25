@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "acme_orders",
+  "info": {
+    "singularName": "acme-order",
+    "pluralName": "acme-orders",
+    "displayName": "ACME Order"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "order": {
+      "type": "json"
+    },
+    "csr": {
+      "type": "text"
+    },
+    "privateKey": {
+      "type": "text"
+    },
+    "certificate": {
+      "type": "text"
+    }
+  }
+}
