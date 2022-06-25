@@ -49,6 +49,11 @@
         "Canceled"
       ],
       "default": "Draft"
+    },
+    "acme_order": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::acme-order.acme-order"
     }
   }
 }

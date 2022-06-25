@@ -1,22 +1,24 @@
 'use strict';
 const axios = require('axios');
+const acme = require('acme-client');
+let client;
 
 /**
  *  certificate controller
  */
 
-const { createCoreController } = require('@strapi/strapi').factories;
+const {createCoreController} = require('@strapi/strapi').factories;
 
-module.exports = createCoreController('api::certificate.certificate', ({ strapi }) =>  ({
+module.exports = createCoreController('api::certificate.certificate', ({strapi}) => ({
     findOne: async (ctx, next) => {
-        const { id } = ctx.params;
+        const {id} = ctx.params;
         const user = ctx.state.user;
 
         const entity = await strapi.entityService.findOne('api::certificate.certificate', id, {
             populate: ['user', 'certificate_type'],
         });
 
-        if (entity.user == null || user.username != entity.user.username) {
+        if (entity.user == null || user.username !== entity.user.username) {
             return {message: 'Error', description: 'Invalid user'};
         }
 
@@ -59,7 +61,7 @@ module.exports = createCoreController('api::certificate.certificate', ({ strapi 
         function addMonths(date, months) {
             var d = date.getDate();
             date.setMonth(date.getMonth() + +months);
-            if (date.getDate() != d) {
+            if (date.getDate() !== d) {
                 date.setDate(0);
             }
             return date;
@@ -80,11 +82,13 @@ module.exports = createCoreController('api::certificate.certificate', ({ strapi 
             populate: ['certificate_type']
         });
 
+        generateAcmeCertificate(body.domain);
+
         return entity;
     },
 
     update: async (ctx, next) => {
-        const { id } = ctx.params;
+        const {id} = ctx.params;
         const user = ctx.state.user;
         const body = ctx.request.body;
 
@@ -92,7 +96,7 @@ module.exports = createCoreController('api::certificate.certificate', ({ strapi 
             populate: ['user', 'certificate_type'],
         });
 
-        if (entity.user == null || user.username != entity.user.username) {
+        if (entity.user == null || user.username !== entity.user.username) {
             return {message: 'Error', description: 'Invalid user'};
         }
 
@@ -106,7 +110,7 @@ module.exports = createCoreController('api::certificate.certificate', ({ strapi 
         function addMonths(date, months) {
             var d = date.getDate();
             date.setMonth(date.getMonth() + +months);
-            if (date.getDate() != d) {
+            if (date.getDate() !== d) {
                 date.setDate(0);
             }
             return date;
@@ -130,7 +134,7 @@ module.exports = createCoreController('api::certificate.certificate', ({ strapi 
     },
 
     delete: async (ctx, next) => {
-        const { id } = ctx.params;
+        const {id} = ctx.params;
         const user = ctx.state.user;
 
         const entity = await strapi.entityService.findOne('api::certificate.certificate', id, {
@@ -157,7 +161,7 @@ module.exports = createCoreController('api::certificate.certificate', ({ strapi 
             populate: '*',
         });
 
-        if (user.username != order.user.username) {
+        if (user.username !== order.user.username) {
             return {message: 'Error', description: 'Invalid user'};
         }
 
@@ -208,12 +212,12 @@ module.exports = createCoreController('api::certificate.certificate', ({ strapi 
                 }
             });
 
-            if (response.data.orderStatus != 2) {
+            if (response.data.orderStatus !== 2) {
                 return {message: 'Error', description: 'Not paid'};
             }
 
             const entries = await strapi.entityService.findMany('api::order.order', {
-                filters: { orderId: orderId },
+                filters: {orderId: orderId},
                 populate: '*',
             });
 
@@ -232,11 +236,297 @@ module.exports = createCoreController('api::certificate.certificate', ({ strapi 
             console.log(certificateUpdate);
 
             // TODO: get certificate
-            
+
             return certificateUpdate;
         } catch (error) {
             console.error(error);
         }
-        
+    },
+
+    issue: async (ctx, next) => {
+        const {id} = ctx.request.params;
+        const user = ctx.state.user;
+
+        const order = await strapi.entityService.findOne('api::certificate.certificate', id, {populate: '*'});
+
+        if (user.username !== order.user.username) {
+            return {message: 'Error', description: 'Invalid user'};
+        }
+
+        if (order.certificate_type.type === "Let's Encrypt") {
+            if (client == null) {
+                const acmeUser = await strapi.entityService.findOne('api::acme-user.acme-user', 1);
+                const initObject = await initAcme(acmeUser);
+                await strapi.entityService.update('api::acme-user.acme-user', 1, {
+                    data: {
+                        privateKey: initObject.key,
+                        url: initObject.accountUrl
+                    }
+                });
+            }
+
+            const {acmeOrder, result} = await generateAcmeCertificate(order.domain);
+            const entry = await strapi.entityService.create('api::acme-order.acme-order', {
+                data: {
+                    order: acmeOrder
+                }
+            });
+            await strapi.entityService.update('api::certificate.certificate', id, {
+                data: {
+                    acme_order: entry
+                }
+            });
+
+            return result;
+        } else {
+            return {message: 'Error', description: "Server can't create this type of certificate"};
+        }
+    },
+
+    verification: async (ctx, next) => {
+        const {id} = ctx.request.params;
+        const {type} = ctx.request.query;
+        const user = ctx.state.user;
+
+        const order = await strapi.entityService.findOne('api::certificate.certificate', id, {populate: '*'});
+
+        if (user.username !== order.user.username) {
+            return {message: 'Error', description: 'Invalid user'};
+        }
+
+        if (order.certificate_type.type === "Let's Encrypt") {
+            if (client == null) {
+                const acmeUser = await strapi.entityService.findOne('api::acme-user.acme-user', 1);
+                const initObject = await initAcme(acmeUser);
+                await strapi.entityService.update('api::acme-user.acme-user', 1, {
+                    data: {
+                        privateKey: initObject.key,
+                        url: initObject.accountUrl
+                    }
+                });
+            }
+
+            if (order.acme_order.order == null || order.acme_order.order == '') {
+                return {message: 'Error', description: 'No order for this domain'};
+            }
+
+            const acmeOrder = await client.getOrder(order.acme_order.order);
+            const result = await verifyAcmeOrder(order.domain, acmeOrder, type);
+            await strapi.entityService.update('api::acme-order.acme-order', order.acme_order.id, {
+                data: {
+                    csr: result.csr,
+                    privateKey: result.privateKey,
+                    certificate: result.certificate
+                }
+            });
+
+            return result;
+        } else {
+            return {message: 'Error', description: "Server can't create this type of certificate"};
+        }
+    },
+
+    verificationTypes: async (ctx, next) => {
+        const {id} = ctx.request.params;
+        const user = ctx.state.user;
+
+        const entity = await strapi.entityService.findOne('api::certificate.certificate', id, {populate: '*'});
+
+        if (user.username !== entity.user.username) {
+            return {message: 'Error', description: 'Invalid user'};
+        }
+
+        let types = [];
+        if (entity.certificate_type.type === "Let's Encrypt") {
+            types = ['dns', 'http']
+        }
+
+        return {types: types};
+    },
+
+    verificationInfo: async (ctx, next) => {
+        const {id} = ctx.request.params;
+        const {type} = ctx.request.query;
+        const user = ctx.state.user;
+
+        const entity = await strapi.entityService.findOne('api::certificate.certificate', id, {populate: '*'});
+
+        if (user.username !== entity.user.username) {
+            return {message: 'Error', description: 'Invalid user'};
+        }
+
+        if (entity.certificate_type.type === "Let's Encrypt") {
+            if (client == null) {
+                const acmeUser = await strapi.entityService.findOne('api::acme-user.acme-user', 1);
+                const initObject = await initAcme(acmeUser);
+                await strapi.entityService.update('api::acme-user.acme-user', 1, {
+                    data: {
+                        privateKey: initObject.key,
+                        url: initObject.accountUrl
+                    }
+                });
+            }
+            const {authorization, challenge, keyAuthorization} = await getAcmeAuthOrderData(entity.acme_order.order, type);
+            const result = await challengeAcmeCreateFn(authorization, challenge, keyAuthorization);
+            return result;
+        } else {
+            return {message: 'Error', description: "Server can't create this type of certificate"};
+        }
+    },
+
+    download: async (ctx, next) => {
+        const {id} = ctx.request.params;
+        const user = ctx.state.user;
+
+        const entity = await strapi.entityService.findOne('api::certificate.certificate', id, {populate: '*'});
+
+        if (user.username !== entity.user.username) {
+            return {message: 'Error', description: 'Invalid user'};
+        }
+
+        if (entity.certificate_type.type === "Let's Encrypt") {
+            return {csr: entity.acme_order.csr, privateKey: entity.acme_order.privateKey, certificate: entity.acme_order.certificate};
+        } else {
+            return {message: 'Error', description: "Server can't create this type of certificate"};
+        }
     },
 }));
+
+async function challengeAcmeCreateFn(authorizations, challenge, keyAuthorization) {
+    if (challenge.type == 'http-01') {
+        const filePath = `/var/www/html/.well-known/acme-challenge/${challenge.token}`;
+        const fileContents = keyAuthorization;
+        console.log(`Creating challenge response for ${authorizations.identifier.value} at path: ${filePath}`);
+        /* Replace this */
+        console.log(`Would write "${fileContents}" to path "${filePath}"`);
+        return {place: filePath, data: fileContents};
+        // await fs.writeFileAsync(filePath, fileContents);
+    } else if (challenge.type == 'dns-01') {
+        const dnsRecord = `_acme-challenge.${authorizations.identifier.value}`;
+        const recordValue = keyAuthorization;
+        console.log(`Creating TXT record for ${authorizations.identifier.value}: ${dnsRecord}`);
+        /* Replace this */
+        console.log(`Would create TXT record "${dnsRecord}" with value "${recordValue}"`);
+        return {place: dnsRecord, data: recordValue};
+        // await dnsProvider.createRecord(dnsRecord, 'TXT', recordValue);
+    }
+}
+
+async function challengeAcmeRemoveFn(authz, challenge, keyAuthorization) {
+    if (challenge.type == 'http-01') {
+        const filePath = `/var/www/html/.well-known/acme-challenge/${challenge.token}`;
+        console.log(`Removing challenge response for ${authz.identifier.value} at path: ${filePath}`);
+        /* Replace this */
+        console.log(`Would remove file on path "${filePath}"`);
+        // await fs.unlinkAsync(filePath);
+    } else if (challenge.type == 'dns-01') {
+        const dnsRecord = `_acme-challenge.${authz.identifier.value}`;
+        const recordValue = keyAuthorization;
+        console.log(`Removing TXT record for ${authz.identifier.value}: ${dnsRecord}`);
+        /* Replace this */
+        console.log(`Would remove TXT record "${dnsRecord}" with value "${recordValue}"`);
+        // await dnsProvider.removeRecord(dnsRecord, 'TXT');
+    }
+}
+
+async function getAcmeAuthOrderData(order, type) {
+    const authorizations = await client.getAuthorizations(order);
+    let challenge;
+    let index;
+    for (let i = 0; i < authorizations.length; i++) {
+        const challenges = authorizations[i].challenges;
+        for (let j = 0; j < challenges.length; j++) {
+            if (challenges[j].type === `${type}-01`) {
+                challenge = challenges[j];
+                index = i;
+                break;
+            }
+        }
+    }
+    // console.log(authorizations);
+    // console.log(challenge);
+    const keyAuthorization = await client.getChallengeKeyAuthorization(challenge);
+    return {authorization: authorizations[index], challenge: challenge, keyAuthorization: keyAuthorization}
+}
+
+async function generateAcmeCertificate(domain) {
+    try {
+        const order = await client.createOrder({
+            identifiers: [
+                {type: 'dns', value: domain},
+                // {type: 'dns', value: '*.' + domain}
+            ]
+        });
+        const {authorization, challenge, keyAuthorization} = await getAcmeAuthOrderData(order, 'dns');
+        const result = await challengeAcmeCreateFn(authorization, challenge, keyAuthorization);
+        return {acmeOrder: order, result: result};
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+async function verifyAcmeOrder(domain, order, type) {
+    try {
+        const {authorization, challenge, keyAuthorization} = await getAcmeAuthOrderData(order, type);
+
+        console.log('Satisfy challenge');
+        await challengeAcmeCreateFn(authorization, challenge, keyAuthorization);
+
+        console.log('Verify that challenge is satisfied');
+        await client.verifyChallenge(authorization, challenge);
+
+        console.log('Notify ACME provider that challenge is satisfied');
+        await client.completeChallenge(challenge);
+
+        console.log('Wait for ACME provider to respond with valid status');
+        await client.waitForValidStatus(challenge);
+
+        console.log('Wait for order status');
+        await client.waitForValidStatus(order);
+
+        console.log('Finalize order');
+        const [key, csr] = await acme.forge.createCsr({
+            commonName: /* '*.' + */ domain,
+            // altNames: [domain]
+        });
+
+        const result = await client.getOrder(order);
+        const finalized = await client.finalizeOrder(result, csr);
+        const cert = await client.getCertificate(finalized);
+
+        console.log(`CSR:\n${csr.toString()}`);
+        console.log(`Private key:\n${key.toString()}`);
+        console.log(`Certificate:\n${cert.toString()}`);
+        return {csr: csr.toString(), privateKey: key.toString(), certificate: cert.toString()};
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+async function initAcme(user) {
+    let key = null;
+    let accountUrl = null;
+    try {
+        if (user.privateKey == '') user.privateKey = null;
+        if (user.url == '') user.url = null;
+        key = user.privateKey !== null ? Buffer.from(user.privateKey) : await acme.forge.createPrivateKey();
+        client = new acme.Client({
+            directoryUrl: acme.directory.letsencrypt.staging,
+            accountKey: key,
+            accountUrl: user.url
+        });
+        try {
+            accountUrl = client.getAccountUrl();
+        }
+        catch (error) {
+            await client.createAccount({
+                termsOfServiceAgreed: true,
+                contact: [`mailto:${user.email}`]
+            });
+            accountUrl = client.getAccountUrl();
+        }
+        return {key: key.toString(), accountUrl: accountUrl};
+    } catch (error) {
+        console.log(error);
+    }
+}
