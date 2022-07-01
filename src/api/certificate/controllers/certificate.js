@@ -320,6 +320,12 @@ module.exports = createCoreController('api::certificate.certificate', ({strapi})
                 }
             });
 
+            await strapi.entityService.update('api::certificate.certificate', id, {
+                data: {
+                    status: 'Verified'
+                }
+            });
+
             return result;
         } else {
             return {message: 'Error', description: "Server can't create this type of certificate"};
@@ -385,12 +391,36 @@ module.exports = createCoreController('api::certificate.certificate', ({strapi})
         }
 
         if (entity.certificate_type.type === "Let's Encrypt") {
-            return {csr: entity.acme_order.csr, privateKey: entity.acme_order.privateKey, certificate: entity.acme_order.certificate};
+            const stream = require('stream');
+
+            ctx.set('Content-Type', 'application/zip');
+            const passThrough = new stream.PassThrough();
+            ctx.body = passThrough;
+
+            await zipCertificate(entity.id, entity.domain, entity.acme_order.csr, entity.acme_order.privateKey, entity.acme_order.certificate, passThrough);
+            // return {csr: entity.acme_order.csr, privateKey: entity.acme_order.privateKey, certificate: entity.acme_order.certificate};
         } else {
             return {message: 'Error', description: "Server can't create this type of certificate"};
         }
     },
 }));
+
+async function zipCertificate(id, domain, csr, privateKey, certificate, body) {
+    const archiver = require('archiver');
+
+    const archive = archiver('zip', {
+        zlib: { level: 9 }
+    });
+    archive.on('error', function(err) {
+        throw err;
+    });
+
+    archive.pipe(body);
+    archive.append(csr.toString(), { name: `${domain}.csr` });
+    archive.append(privateKey.toString(), { name: `${domain}.key` });
+    archive.append(certificate.toString(), { name: `${domain}.cer` });
+    await archive.finalize();
+}
 
 async function challengeAcmeCreateFn(authorizations, challenge, keyAuthorization) {
     if (challenge.type == 'http-01') {
