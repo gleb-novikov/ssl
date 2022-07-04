@@ -43,8 +43,9 @@
       "type": "enumeration",
       "enum": [
         "Draft",
+        "Paid",
+        "Verification",
         "Issued",
-        "Verified",
         "Expired",
         "Canceled"
       ],

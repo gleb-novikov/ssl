@@ -153,7 +153,7 @@ module.exports = createCoreController('api::certificate.certificate', ({strapi})
     },
 
     order: async (ctx, next) => {
-        const stepSberOrder = 1000000;
+        const stepSberOrder = strapi.config.get('server.sberRangeOrders');
         const {id} = ctx.request.params;
         const user = ctx.state.user;
 
@@ -229,7 +229,7 @@ module.exports = createCoreController('api::certificate.certificate', ({strapi})
 
             const certificateUpdate = await strapi.entityService.update('api::certificate.certificate', entries[0].certificate.id, {
                 data: {
-                    status: 'Issued'
+                    status: 'Paid'
                 },
             });
 
@@ -322,7 +322,7 @@ module.exports = createCoreController('api::certificate.certificate', ({strapi})
 
             await strapi.entityService.update('api::certificate.certificate', id, {
                 data: {
-                    status: 'Verified'
+                    status: 'Issued'
                 }
             });
 
@@ -540,8 +540,10 @@ async function initAcme(user) {
         if (user.privateKey == '') user.privateKey = null;
         if (user.url == '') user.url = null;
         key = user.privateKey !== null ? Buffer.from(user.privateKey) : await acme.forge.createPrivateKey();
+        const isProduction = strapi.config.get('server.acmeProduction');
+        const directory = isProduction ? acme.directory.letsencrypt.production : acme.directory.letsencrypt.staging;
         client = new acme.Client({
-            directoryUrl: acme.directory.letsencrypt.staging,
+            directoryUrl: directory,
             accountKey: key,
             accountUrl: user.url
         });
